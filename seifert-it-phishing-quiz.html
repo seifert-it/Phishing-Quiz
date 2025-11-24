@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>seifert-it Phishing-Quiz – Kirchen & Gemeinden</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f0f2f5;
+      padding: 20px;
+      color: #1f2933;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 650px;
+      position: relative;
+    }
+
+    /* Header mit Logo */
+    .app-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 18px;
+      background: linear-gradient(90deg, #0b7285, #1864ab);
+      color: white;
+    }
+
+    .logo {
+      height: 40px;
+      width: auto;
+      margin-right: 12px;
+      object-fit: contain;
+    }
+
+    .logo-placeholder {
+      height: 40px;
+      width: 40px;
+      margin-right: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .app-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .app-subtitle {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    /* Statuszeile */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: #e9f3ff;
+      border-bottom: 1px solid #d0e2ff;
+      font-size: 0.9rem;
+    }
+
+    .status-left span {
+      font-weight: 600;
+      color: #0b7285;
+    }
+
+    .status-right {
+      font-size: 0.85rem;
+      color: #52606d;
+    }
+
+    /* Hauptbereich: Sidebar + Mailfenster */
+    .main {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .sidebar {
+      width: 30%;
+      border-right: 1px solid #d8e2ec;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #52606d;
+      border-bottom: 1px solid #d8e2ec;
+      background: #edf2ff;
+    }
+
+    .mail-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .mail-list-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e1e7ec;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      font-size: 0.9rem;
+    }
+
+    .mail-list-item:hover {
+      background: #e7f5ff;
+    }
+
+    .mail-list-item.active {
+      background: #d0ebff;
+      border-left: 3px solid #0b7285;
+      padding-left: 9px;
+    }
+
+    .mail-from {
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #102a43;
+    }
+
+    .mail-subject {
+      font-size: 0.9rem;
+      color: #243b53;
+      margin-bottom: 2px;
+    }
+
+    .mail-preview {
+      font-size: 0.8rem;
+      color: #627d98;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mail-date {
+      font-size: 0.75rem;
+      color: #829ab1;
+      margin-top: 4px;
+    }
+
+    /* Mail-Detailbereich */
+    .mail-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .mail-view-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #d8e2ec;
+      background: #f8fafc;
+    }
+
+    .mail-view-subject {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .mail-meta-row {
+      font-size: 0.85rem;
+      color: #52606d;
+      margin-bottom: 2px;
+    }
+
+    .mail-meta-label {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .mail-view-body {
+      padding: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      background: #ffffff;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Quizbereich */
+    .quiz-panel {
+      border-top: 1px solid #d8e2ec;
+      padding: 12px 16px;
+      background: #f8fafc;
+    }
+
+    .quiz-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .quiz-btn {
+      flex: 1;
+      min-width: 130px;
+      padding: 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s;
+    }
+
+    .quiz-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-phishing {
+      background: #fff5f5;
+      color: #c92a2a;
+      box-shadow: 0 2px 6px rgba(201, 42, 42, 0.3);
+      border: 1px solid #ffc9c9;
+    }
+
+    .btn-phishing:hover {
+      background: #ffe3e3;
+    }
+
+    .btn-legit {
+      background: #e6fcf5;
+      color: #087f5b;
+      box-shadow: 0 2px 6px rgba(8, 127, 91, 0.3);
+      border: 1px solid #c3fae8;
+    }
+
+    .btn-legit:hover {
+      background: #c3fae8;
+    }
+
+    .btn-next {
+      background: #e7f5ff;
+      color: #1864ab;
+      border: 1px solid #a5d8ff;
+      box-shadow: 0 2px 6px rgba(24, 100, 171, 0.25);
+      min-width: 110px;
+    }
+
+    .btn-next:hover {
+      background: #d0ebff;
+    }
+
+    .quiz-feedback {
+      font-size: 0.85rem;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 4px;
+      border-left: 4px solid transparent;
+    }
+
+    .quiz-feedback.correct {
+      background: #ebfbee;
+      border-color: #37b24d;
+      color: #2b8a3e;
+    }
+
+    .quiz-feedback.wrong {
+      background: #fff5f5;
+      border-color: #f03e3e;
+      color: #c92a2a;
+    }
+
+    .quiz-feedback-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #829ab1;
+      margin-top: 4px;
+    }
+
+    /* Auswertungs-Overlay */
+    .result-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .result-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px 24px 18px 24px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.4);
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      color: #102a43;
+      font-weight: 700;
+    }
+
+    .result-headline {
+      font-size: 1rem;
+      margin-bottom: 6px;
+      color: #1864ab;
+      font-weight: 600;
+    }
+
+    .result-details {
+      font-size: 0.9rem;
+      color: #52606d;
+      margin-bottom: 16px;
+    }
+
+    .result-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .result-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .result-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .result-btn-primary {
+      background: #1864ab;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(24, 100, 171, 0.4);
+    }
+
+    .result-btn-primary:hover {
+      background: #0b7285;
+    }
+
+    .result-btn-secondary {
+      background: #f1f3f5;
+      color: #343a40;
+      border: 1px solid #dee2e6;
+    }
+
+    .result-btn-secondary:hover {
+      background: #e9ecef;
+    }
+
+    @media (max-width: 900px) {
+      .main {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        max-height: 220px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .app {
+        min-height: 0;
+      }
+      .app-title {
+        font-size: 1rem;
+      }
+      .status-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header mit Logo -->
+    <header class="app-header">
+      <!-- Logo: Stelle sicher, dass im gleichen Ordner eine Datei "Logo_seifert-it.png" liegt -->
+      <img src="Logo_seifert-it.png" alt="seifert-it Logo" class="logo" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';" />
+      <div id="logoFallback" class="logo-placeholder" style="display:none;">IT</div>
+      <div>
+        <div class="app-title">seifert-it Phishing-Quiz</div>
+        <div class="app-subtitle">Kirchengemeinden · Ehrenamt · IT-Security</div>
+      </div>
+    </header>
+
+    <!-- Status/Score -->
+    <div class="status-bar">
+      <div class="status-left">
+        Score: <span id="scoreText">0 von 0 richtig</span>
+      </div>
+      <div class="status-right" id="statusInfo">
+        Wähle eine Mail aus dem Posteingang und entscheide: Phishing oder echt?
+      </div>
+    </div>
+
+    <!-- Hauptbereich -->
+    <div class="main">
+      <!-- Linke Spalte: Posteingang -->
+      <aside class="sidebar">
+        <div class="sidebar-header">Posteingang – Kirchengemeinde</div>
+        <div class="mail-list" id="mailList"></div>
+      </aside>
+
+      <!-- Rechte Spalte: Mail-Inhalt + Quiz -->
+      <section class="mail-view">
+        <div class="mail-view-header">
+          <div class="mail-view-subject" id="mailSubject">(Keine Mail ausgewählt)</div>
+          <div class="mail-meta-row">
+            <span class="mail-meta-label">Von:</span>
+            <span id="mailFrom"></span>
+          </div>
+          <div class="mail-meta-row">
+            <span class="mail-meta-label">An:</span>
+            <span id="mailTo"></span>
+          </div>
+          <div class="mail-meta-row">
+            <span class="mail-meta-label">Datum:</span>
+            <span id="mailDate"></span>
+          </div>
+        </div>
+        <div class="mail-view-body" id="mailBody">
+          Bitte wähle links im Posteingang eine Mail aus.
+        </div>
+        <div class="quiz-panel">
+          <div class="quiz-buttons">
+            <button class="quiz-btn btn-phishing" id="btnPhishing">Phishing-Verdacht</button>
+            <button class="quiz-btn btn-legit" id="btnLegit">Sieht echt aus</button>
+            <button class="quiz-btn btn-next" id="btnNext">Nächste Mail</button>
+          </div>
+          <div id="quizFeedback" class="quiz-feedback" style="display:none;"></div>
+          <div class="hint">
+            Tipp: Achte auf Absenderadresse, Druck („dringend“), ungewöhnliche Links
+            und Formulierungen – gerade im kirchlichen Kontext.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Auswertungs-Overlay -->
+    <div id="resultOverlay" class="result-overlay" style="display:none;">
+      <div class="result-box">
+        <div class="result-title">Auswertung</div>
+        <div class="result-headline" id="resultHeadline"></div>
+        <div class="result-details" id="resultDetails"></div>
+        <div class="result-buttons">
+          <button class="result-btn result-btn-primary" id="btnRestart">Nochmal spielen</button>
+          <button class="result-btn result-btn-secondary" id="btnCloseOverlay">Schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Beispiel-Mails mit kirchlichem Kontext
+    var mails = [
+      {
+        id: 1,
+        fromName: "IT-Support Kirchenkreis Lübeck-Lauenburg",
+        from: "it-support@kirchkreis-luebeck-lauenburg.de",
+        to: "kirchenbuero.st-salvatoris@kirche-geesthacht.de",
+        subject: "Dringend: Ihr Microsoft 365-Konto wird heute deaktiviert",
+        date: "Mo, 24.11.2025 08:12",
+        body:
+"Sehr geehrte Damen und Herren,\n\n" +
+"wir haben ungewöhnliche Aktivitäten auf Ihrem Microsoft 365-Konto der Kirchengemeinde festgestellt. " +
+"Um eine vollständige Deaktivierung Ihres Kontos und den Verlust aller Gemeindedaten zu verhindern, " +
+"müssen Sie Ihr Konto noch heute über den folgenden Link verifizieren:\n\n" +
+"   >> Konto jetzt verifizieren und schützen <<\n\n" +
+"Wenn Sie den Vorgang nicht innerhalb von 2 Stunden abschließen, werden alle E-Mails des Kirchenbüros " +
+"automatisch gelöscht.\n\n" +
+"Mit freundlichen Grüßen\n" +
+"IT-Support Kirchenkreis",
+        isPhishing: true,
+        explanation:
+"Typische Phishing-Merkmale: künstlicher Zeitdruck, Drohung mit Datenverlust, unspezifische Angaben. " +
+"Der Link ist nicht erkennbar, es wird nicht konkret auf dein echtes Konto Bezug genommen. " +
+"In der Regel kündigt der Kirchenkreis solche Schritte nicht per Ein-Klick-Link an.",
+        answered: false
+      },
+      {
+        id: 2,
+        fromName: "Pastorin Gloria von Geest",
+        from: "gloria.vongeest@kirche-geesthacht.de",
+        to: "kirchenbuero.st-salvatoris@kirche-geesthacht.de",
+        subject: "Neue Konfirmandenliste und Absprachen Gottesdienst",
+        date: "Mi, 19.11.2025 14:37",
+        body:
+"Hallo ins Kirchenbüro,\n\n" +
+"anbei sende ich die aktualisierte Konfirmandenliste als PDF. " +
+"Im Gottesdienst am 3. Advent sollen die neuen Konfis kurz vorgestellt werden. " +
+"Kannst du bitte im Amtsblatt noch eine kleine Ankündigung ergänzen?\n\n" +
+"Außerdem bräuchte ich bis nächste Woche die Abrechnung der letzten Konfi-Freizeit, " +
+"damit wir im Kirchengemeinderat den Haushalt fertig machen können.\n\n" +
+"Viele Grüße\n" +
+"Gloria",
+        isPhishing: false,
+        explanation:
+"Das ist eine typische interne Mail mit klaren Bezügen auf reale Vorgänge (Konfis, Freizeit, KGR, Amtsblatt). " +
+"Keine Links, kein Zeitdruck-Trick, keine Aufforderung, Passwörter einzugeben.",
+        answered: false
+      },
+      {
+        id: 3,
+        fromName: "Diakonisches Spendenportal",
+        from: "spenden@diakonie-portal.online",
+        to: "info@kirche-geesthacht.de",
+        subject: "Bitte aktualisieren Sie Ihre Bankdaten für die Ukraine-Hilfe",
+        date: "Fr, 14.11.2025 09:02",
+        body:
+"Sehr geehrte Kirchengemeinde,\n\n" +
+"Sie unterstützen regelmäßig unsere diakonische Ukraine-Hilfe. " +
+"Aufgrund neuer EU-Richtlinien müssen wir Ihre Bankdaten umgehend aktualisieren. " +
+"Bitte klicken Sie auf den untenstehenden Link und geben Sie Ihre IBAN, Onlinebanking-PIN " +
+"und das aktuelle SMS-TAN-Verfahren ein.\n\n" +
+"   >> Bankdaten jetzt bestätigen <<\n\n" +
+"Nur so können wir Ihre wertvollen Spenden weiter verbuchen.\n\n" +
+"Mit diakonischen Grüßen\n" +
+"Ihr Spenden-Team",
+        isPhishing: true,
+        explanation:
+"Echte Spendenorganisationen fragen niemals nach PIN oder TAN. Das ist ein klares Warnsignal. " +
+"Auch die Domain „diakonie-portal.online“ ist verdächtig und wirkt nicht offiziell.",
+        answered: false
+      },
+      {
+        id: 4,
+        fromName: "Kirchenkreisverwaltung Herzogtum Lauenburg",
+        from: "verwaltung@kirchenkreis-ll.de",
+        to: "kirchenbuero.st-salvatoris@kirche-geesthacht.de",
+        subject: "Fortbildung: IT-Security Awareness für Kirchengemeinden",
+        date: "Di, 11.11.2025 10:15",
+        body:
+"Liebe Mitarbeitende in den Kirchengemeinden,\n\n" +
+"wir bieten im Januar eine Fortbildung zum Thema „IT-Security Awareness für Kirchengemeinden“ an. " +
+"Schwerpunkte sind: Erkennen von Phishing-Mails, sicherer Umgang mit Gemeindedaten und Notfallplanung.\n\n" +
+"Anmeldung bis zum 10.12.2025 über das bekannte Fortbildungsportal des Kirchenkreises.\n\n" +
+"Herzliche Grüße\n" +
+"Im Auftrag der Kirchenkreisverwaltung",
+        isPhishing: false,
+        explanation:
+"Seriöse Einladung mit klaren Ansprechpartnern und ohne eingebettete „Klick hier und gib Daten ein“-Links. " +
+"Es wird auf das bekannte kirchliche Fortbildungsportal verwiesen, nicht auf eine fremde Website.",
+        answered: false
+      },
+      {
+        id: 5,
+        fromName: "„Bischöfliches Sonderkonto Gebäudeenergie“",
+        from: "energiehilfe@kirche-nord.org-secure.com",
+        to: "kg-st-salvatoris@kirche-geesthacht.de",
+        subject: "Soforthilfe für Ihre Heizkosten – letzte Chance!",
+        date: "So, 02.11.2025 07:44",
+        body:
+"Sehr geehrte Kirchengemeinde,\n\n" +
+"aufgrund der massiv gestiegenen Heizkosten haben wir ein bischöfliches Sonderkonto eingerichtet. " +
+"Nur Gemeinden, die innerhalb von 24 Stunden reagieren, erhalten einen Zuschuss.\n\n" +
+"Bitte überweisen Sie eine Sicherheitsgebühr von 480,00 € an das unten angegebene Konto, " +
+"damit wir Ihre Identität als Kirchengemeinde verifizieren können. Danach erhalten Sie eine " +
+"Rückzahlung in Höhe von 2.000,00 €.\n\n" +
+"Kontoinhaber: Energiehilfe Nord\n" +
+"IBAN: XX99 9999 9999 9999 9999 99\n\n" +
+"Mit bischöflichem Segen\n" +
+"Energiehilfe-Team",
+        isPhishing: true,
+        explanation:
+"Typische Betrugsmasche: Versprechen von Geldrückzahlung gegen Vorabzahlung, starker Zeitdruck, " +
+"fragwürdige Absenderadresse („.org-secure.com“). So würde kein Kirchenkreis oder keine Landeskirche arbeiten.",
+        answered: false
+      },
+      {
+        id: 6,
+        fromName: "Kinder- und Jugendbüro der Kirchengemeinde",
+        from: "jugend@kirche-geesthacht.de",
+        to: "konfis2025@kirche-geesthacht.de",
+        subject: "Erinnerung: Online-Anmeldung Konfi-Freizeit",
+        date: "Mi, 29.10.2025 16:22",
+        body:
+"Hallo zusammen,\n\n" +
+"hier kommt die Erinnerung zur Online-Anmeldung für die Konfi-Freizeit im März. " +
+"Der Anmeldebogen liegt wie immer im Download-Bereich auf unserer offiziellen Homepage. " +
+"Bitte ladet ihn euch dort herunter, füllt ihn aus und gebt ihn im Kirchenbüro ab.\n\n" +
+"Der Link zur Homepage:\n" +
+"   https://www.kirche-geesthacht.de/konfi\n\n" +
+"Viele Grüße\n" +
+"euer Kinder- und Jugendbüro",
+        isPhishing: false,
+        explanation:
+"Der Link führt klar auf die offizielle Gemeindehomepage. Kein Druck, keine Aufforderung, " +
+"Zugangsdaten oder Bankinformationen einzugeben. Das ist eine typische organisatorische Mail.",
+        answered: false
+      },
+      {
+        id: 7,
+        fromName: "Orgelbau Müller & Sohn",
+        from: "service@orgelbau-mueller.de",
+        to: "kirchenmusik@kirche-geesthacht.de",
+        subject: "Jährliche Orgelwartung St. Salvatoris",
+        date: "Mo, 20.10.2025 09:11",
+        body:
+"Sehr geehrter Herr Kantor,\n\n" +
+"wie vereinbart möchten wir in der Woche ab dem 17.11. die jährliche Wartung der Orgel in der " +
+"St. Salvatoris-Kirche durchführen. Bitte teilen Sie uns mit, ob an den Vormittagen bereits Proben " +
+"oder Beerdigungen geplant sind.\n\n" +
+"Die Kosten entsprechen der letztjährigen Wartung. Die detaillierte Rechnung erhalten Sie wie gewohnt " +
+"über die Kirchenkreisverwaltung.\n\n" +
+"Mit freundlichen Grüßen\n" +
+"Orgelbau Müller & Sohn",
+        isPhishing: false,
+        explanation:
+"Handwerksbetrieb mit klaren Bezügen zu einer konkreten Leistung, keine Links, keine ungewöhnlichen " +
+"Datenabfragen – eine typische Service-Mail.",
+        answered: false
+      },
+      {
+        id: 8,
+        fromName: "Cloud-Speicher Krippenspiel-Bilder",
+        from: "foto-cloud@secure-share-kirche.net",
+        to: "jugend@kirche-geesthacht.de",
+        subject: "Alle Fotos vom Krippenspiel – hier klicken!",
+        date: "Di, 21.10.2025 21:48",
+        body:
+"Hallo Kirchengemeinde,\n\n" +
+"jemand hat einen Ordner mit Fotos vom Krippenspiel 2025 mit Ihnen geteilt. Um die Bilder " +
+"anzusehen, melden Sie sich bitte mit Ihren Microsoft- oder Google-Zugangsdaten an:\n\n" +
+"   >> Jetzt anmelden und alle Fotos sehen <<\n\n" +
+"Wenn Sie sich nicht innerhalb von 12 Stunden anmelden, werden alle Dateien automatisch gelöscht.\n\n" +
+"Cloud-Speicher Dienst\n",
+        isPhishing: true,
+        explanation:
+"Unklare Absenderadresse, kein Bezug zu einer bekannten Plattform der Gemeinde, und die Aufforderung, " +
+"sich irgendwo mit Microsoft/Google-Daten anzumelden. Außerdem künstlicher Zeitdruck.",
+        answered: false
+      },
+      {
+        id: 9,
+        fromName: "Datenschutzbeauftragter des Kirchenkreises",
+        from: "datenschutz@kirchkreis-ll.de",
+        to: "info@kirche-geesthacht.de",
+        subject: "Aktualisierte Hinweise zu Gemeindebrief & Fotos",
+        date: "Do, 09.10.2025 13:05",
+        body:
+"Liebe Mitarbeitende,\n\n" +
+"im Anhang finden Sie die aktualisierten Hinweise zum Umgang mit Fotos von Kindern und Jugendlichen " +
+"in Gemeindebrief, Homepage und Social Media. Bitte geben Sie die Informationen an Ihre Teams weiter.\n\n" +
+"Es handelt sich ausschließlich um eine Text-PDF, es werden keine Zugangsdaten oder Unterschriften " +
+"über einen Link abgefragt.\n\n" +
+"Mit freundlichen Grüßen\n" +
+"Ihr Datenschutzbeauftragter",
+        isPhishing: false,
+        explanation:
+"Seriöse Absenderadresse, klarer Inhalt, keine Links zu fremden Portalen und keine Aufforderung, " +
+"Passwörter oder Bankdaten einzugeben.",
+        answered: false
+      },
+      {
+        id: 10,
+        fromName: "Rechnungsstelle Kirchenkreis",
+        from: "abrechnung@kirchenkreis-luebecklau.de",
+        to: "kg-st-salvatoris@kirche-geesthacht.de",
+        subject: "Offene Rechnung: Beamer für Jugendhaus",
+        date: "Fr, 03.10.2025 07:22",
+        body:
+"Sehr geehrte Kirchengemeinde,\n\n" +
+"im Anhang finden Sie eine offene Rechnung über einen Beamer im Wert von 1.299,00 €, " +
+"der angeblich über Ihr Gemeindekonto bestellt wurde. Bitte laden Sie die Excel-Datei herunter, " +
+"aktivieren Sie die Inhalte und klicken Sie auf „Makros ausführen“, um die Rechnung einzusehen.\n\n" +
+"Mit freundlichen Grüßen\n" +
+"Rechnungsstelle",
+        isPhishing: true,
+        explanation:
+"Verdächtige Domain, unklare Bestellung und der Hinweis, Makros in einer Excel-Datei zu aktivieren – " +
+"das ist ein klassisches Einfallstor für Schadsoftware.",
+        answered: false
+      },
+      {
+        id: 11,
+        fromName: "Newsletter Kirchengemeinde",
+        from: "newsletter@kirche-geesthacht.de",
+        to: "gemeindemitglieder@kirche-geesthacht.de",
+        subject: "Gemeindebrief November / Adventsaktionen",
+        date: "Mi, 01.10.2025 09:00",
+        body:
+"Liebe Leserinnen und Leser,\n\n" +
+"anbei senden wir Ihnen den neuen Gemeindebrief als PDF. Darin finden Sie Informationen " +
+"zu unseren Adventsgottesdiensten, zum Bastelnachmittag mit Kindern sowie zur Konfiarbeit.\n\n" +
+"Wenn Sie den Gemeindebrief nicht mehr als E-Mail erhalten möchten, können Sie sich jederzeit " +
+"im Kirchenbüro abmelden.\n\n" +
+"Herzliche Grüße\n" +
+"Ihre Kirchengemeinde",
+        isPhishing: false,
+        explanation:
+"Ein klassischer Newsletter mit PDF-Anhang, keine Links auf fremde Seiten, kein Zeitdruck, " +
+"keine Abfrage sensibler Daten.",
+        answered: false
+      },
+      {
+        id: 12,
+        fromName: "Pastorin (über angebliche Notfalladresse)",
+        from: "gloria.vongeest.notfall@gmail.com",
+        to: "kirchenbuero.st-salvatoris@kirche-geesthacht.de",
+        subject: "Dringend: Geschenkgutscheine für Bedürftige",
+        date: "Sa, 27.09.2025 06:43",
+        body:
+"Hallo, hier ist Pastorin Gloria,\n\n" +
+"ich bin gerade auf einer Fortbildung und habe mein Diensthandy verloren. " +
+"Wir möchten heute spontan einige bedürftige Familien unterstützen und brauchen " +
+"dringend 10 Geschenkgutscheine à 50 € (z.B. Amazon oder Supermarkt).\n\n" +
+"Kannst du bitte die Gutscheine sofort kaufen und mir die Codes per E-Mail schicken? " +
+"Ich erstatte dir das Geld über die Kirchenkasse, sobald ich zurück bin.\n\n" +
+"Danke und Gottes Segen\n" +
+"Gloria",
+        isPhishing: true,
+        explanation:
+"Typische Betrugsmasche: angebliche bekannte Person, private Freemail-Adresse, Aufforderung zum " +
+"sofortigen Kauf von Gutscheinen und Übersenden der Codes. So würde eine echte Pastorin niemals vorgehen.",
+        answered: false
+      }
+    ];
+
+    var currentMailId = null;
+    var score = 0;          // Anzahl der Mails, die beim ersten Versuch richtig eingeschätzt wurden
+    var answeredCount = 0;  // Anzahl der Mails, die überhaupt schon gewertet wurden (einmalig pro Mail)
+
+    var mailListEl = document.getElementById("mailList");
+    var mailSubjectEl = document.getElementById("mailSubject");
+    var mailFromEl = document.getElementById("mailFrom");
+    var mailToEl = document.getElementById("mailTo");
+    var mailDateEl = document.getElementById("mailDate");
+    var mailBodyEl = document.getElementById("mailBody");
+    var scoreTextEl = document.getElementById("scoreText");
+    var statusInfoEl = document.getElementById("statusInfo");
+    var quizFeedbackEl = document.getElementById("quizFeedback");
+    var resultOverlayEl = document.getElementById("resultOverlay");
+    var resultHeadlineEl = document.getElementById("resultHeadline");
+    var resultDetailsEl = document.getElementById("resultDetails");
+
+    function shuffleArray(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+      }
+    }
+
+    function renderMailList() {
+      mailListEl.innerHTML = "";
+      for (var i = 0; i < mails.length; i++) {
+        var mail = mails[i];
+        var item = document.createElement("div");
+        item.className = "mail-list-item";
+        item.setAttribute("data-id", mail.id);
+
+        var from = document.createElement("div");
+        from.className = "mail-from";
+        from.textContent = mail.fromName || mail.from;
+
+        var subject = document.createElement("div");
+        subject.className = "mail-subject";
+        subject.textContent = mail.subject;
+
+        var preview = document.createElement("div");
+        preview.className = "mail-preview";
+        preview.textContent = mail.body.replace(/\s+/g, " ").slice(0, 70) + "...";
+
+        var date = document.createElement("div");
+        date.className = "mail-date";
+        date.textContent = mail.date;
+
+        item.appendChild(from);
+        item.appendChild(subject);
+        item.appendChild(preview);
+        item.appendChild(date);
+
+        item.addEventListener("click", function () {
+          var id = parseInt(this.getAttribute("data-id"), 10);
+          openMail(id);
+        });
+
+        mailListEl.appendChild(item);
+      }
+    }
+
+    function openMail(id) {
+      currentMailId = id;
+      var mail = mails.find(function (m) { return m.id === id; });
+
+      var items = document.querySelectorAll(".mail-list-item");
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove("active");
+        if (parseInt(items[i].getAttribute("data-id"), 10) === id) {
+          items[i].classList.add("active");
+        }
+      }
+
+      mailSubjectEl.textContent = mail.subject;
+      mailFromEl.textContent = mail.fromName + " <" + mail.from + ">";
+      mailToEl.textContent = mail.to;
+      mailDateEl.textContent = mail.date;
+      mailBodyEl.textContent = mail.body;
+
+      quizFeedbackEl.style.display = "none";
+      quizFeedbackEl.classList.remove("correct", "wrong");
+      quizFeedbackEl.textContent = "";
+
+      statusInfoEl.textContent = "Entscheide: Ist diese Mail Phishing oder echt?";
+    }
+
+    function updateScoreText() {
+      scoreTextEl.textContent = score + " von " + answeredCount + " Mails beim ersten Versuch richtig";
+    }
+
+    function allMailsAnswered() {
+      return mails.every(function (m) { return m.answered; });
+    }
+
+    function showResultOverlay() {
+      var total = mails.length;
+      var correct = score;
+
+      resultHeadlineEl.textContent = "Du hast " + correct + " von " + total + " Mails richtig eingeschätzt.";
+      var quote;
+      var ratio = total > 0 ? correct / total : 0;
+
+      if (ratio === 1) {
+        quote = "Großartig! Du erkennst Phishing-Mails im kirchlichen Kontext sehr sicher.";
+      } else if (ratio >= 0.7) {
+        quote = "Sehr gut! Ein paar Mails waren knifflig – ideal als Gesprächsanlass mit dem Team.";
+      } else if (ratio >= 0.4) {
+        quote = "Solide Grundlage, aber es gibt noch Luft nach oben. Schau dir die Erklärungen genau an.";
+      } else {
+        quote = "Vorsicht: In der Praxis könnten so echte Schäden entstehen. Es lohnt sich, das Thema genauer anzuschauen.";
+      }
+
+      resultDetailsEl.textContent =
+        quote + " Du kannst das Quiz jederzeit erneut starten – die Reihenfolge der Mails wird gemischt.";
+
+      resultOverlayEl.style.display = "flex";
+    }
+
+    function hideResultOverlay() {
+      resultOverlayEl.style.display = "none";
+    }
+
+    function checkAnswer(userThinksPhishing) {
+      if (currentMailId === null) {
+        statusInfoEl.textContent = "Bitte zuerst eine Mail im Posteingang auswählen.";
+        return;
+      }
+      var mail = mails.find(function (m) { return m.id === currentMailId; });
+
+      var isCorrect = (userThinksPhishing === mail.isPhishing);
+
+      // Nur beim ersten Versuch für diese Mail werten
+      if (!mail.answered) {
+        mail.answered = true;
+        answeredCount += 1;
+        if (isCorrect) {
+          score += 1;
+        }
+        updateScoreText();
+      }
+
+      quizFeedbackEl.style.display = "block";
+      quizFeedbackEl.classList.remove("correct", "wrong");
+
+      var title = document.createElement("div");
+      title.className = "quiz-feedback-title";
+
+      var text = document.createElement("div");
+      text.textContent = mail.explanation;
+
+      if (isCorrect) {
+        quizFeedbackEl.classList.add("correct");
+        title.textContent = "Richtig!";
+        statusInfoEl.textContent = "Gut erkannt – so trainierst du dein Sicherheitsgefühl im Alltag.";
+      } else {
+        quizFeedbackEl.classList.add("wrong");
+        title.textContent = "Nicht ganz …";
+        statusInfoEl.textContent = "Schau dir die Erklärung unten an. Wo sind die Warnsignale?";
+      }
+
+      quizFeedbackEl.innerHTML = "";
+      quizFeedbackEl.appendChild(title);
+      quizFeedbackEl.appendChild(text);
+
+      // Wenn alle Mails mindestens einmal beantwortet wurden, Auswertung anzeigen
+      if (allMailsAnswered()) {
+        showResultOverlay();
+      }
+    }
+
+    function openNextMail() {
+      if (mails.length === 0) return;
+
+      var currentIndex = -1;
+      if (currentMailId !== null) {
+        for (var i = 0; i < mails.length; i++) {
+          if (mails[i].id === currentMailId) {
+            currentIndex = i;
+            break;
+          }
+        }
+      }
+      var nextIndex = (currentIndex + 1) % mails.length;
+      openMail(mails[nextIndex].id);
+    }
+
+    function resetQuiz() {
+      score = 0;
+      answeredCount = 0;
+      for (var i = 0; i < mails.length; i++) {
+        mails[i].answered = false;
+      }
+      shuffleArray(mails);
+      renderMailList();
+      if (mails.length > 0) {
+        openMail(mails[0].id);
+      } else {
+        currentMailId = null;
+        mailSubjectEl.textContent = "(Keine Mail ausgewählt)";
+        mailFromEl.textContent = "";
+        mailToEl.textContent = "";
+        mailDateEl.textContent = "";
+        mailBodyEl.textContent = "Es sind keine Mails vorhanden.";
+      }
+      updateScoreText();
+      statusInfoEl.textContent = "Wähle eine Mail aus dem Posteingang und entscheide: Phishing oder echt?";
+      hideResultOverlay();
+    }
+
+    document.getElementById("btnPhishing").addEventListener("click", function () {
+      checkAnswer(true);
+    });
+
+    document.getElementById("btnLegit").addEventListener("click", function () {
+      checkAnswer(false);
+    });
+
+    document.getElementById("btnNext").addEventListener("click", function () {
+      openNextMail();
+    });
+
+    document.getElementById("btnRestart").addEventListener("click", function () {
+      resetQuiz();
+    });
+
+    document.getElementById("btnCloseOverlay").addEventListener("click", function () {
+      hideResultOverlay();
+    });
+
+    // Initial: Quiz zurücksetzen (inkl. Shuffle)
+    resetQuiz();
+  </script>
+</body>
+</html>
